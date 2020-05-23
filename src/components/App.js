@@ -1,40 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Board from './Board';
-// import styled from 'styled-components';
+import { useDispatch } from 'react-redux';
+import { undoAction, redoAction } from '../redux/actions'
+import { styles, SearchInput, DoBtn } from '../styles/App.styles';
 import { useSelector } from 'react-redux';
 
 const App = () => {
 
-  const archived = useSelector(state => state.archived);
+  const previousStates = useSelector(state => state.board.previousStates);
+  const futureStates = useSelector(state => state.board.futureStates);
+  const [searchText, setSearchText] = useState('');
+  const dispatch = useDispatch();
+
+  const undo = () => {
+    dispatch(undoAction());
+  };
+
+  const redo = () => {
+    dispatch(redoAction());
+  };
+
+  const handleInputChange = (ev) => {
+    setSearchText(ev.target.value);
+  };
 
   return (
     <div>
       <div style={styles.header}>
-        Simple Trello
+        <div style={styles.search}>
+          <SearchInput
+            value={searchText}
+            onChange={handleInputChange}>
+          </SearchInput>
+          <span style={styles.searchIcon}>
+            <i className="fas fa-search"></i>
+          </span>
+        </div>
+        <div style={styles.title}>
+          Simple Trello
+        </div>
+        <div style={styles.btnContainer}>
+          <DoBtn onClick={undo} disabled={previousStates.length === 0} className='btn'>
+            <i className="fas fa-undo"></i>
+          </DoBtn>
+          &nbsp;
+          <DoBtn onClick={redo} disabled={futureStates.length === 0} className='btn' >
+            <i className="fas fa-redo"></i>
+          </DoBtn>
+        </div>
       </div>
-      <p style={styles.archived}>
-        Archived Lists: {archived.lists.length} &nbsp;
-        Archived Cards: {archived.cards.length}
-      </p>
-      <Board />
+      <Board searchText={searchText} />
     </div>
   );
 }
 
 export default App;
-
-export const styles = {
-  header: {
-    height: '40px',
-    width: '100%',
-    color: 'white',
-    fontSize: '25px',
-    textAlign: 'center',
-    background: 'rgba(0, 0, 0, 0.15)'
-  },
-  archived: {
-    margin: '0.5rem 0 0 0',
-    color: 'white',
-    textAlign: 'center'
-  }
-};

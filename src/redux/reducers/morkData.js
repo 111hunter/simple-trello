@@ -29,5 +29,5 @@ export const initialState = [
             getCard('Done task'),
             getCard('TO FILTER: Done task'),
         ]
-    },
+    }
 ];

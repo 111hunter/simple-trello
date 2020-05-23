@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 import listReducer from './listReducer';
-import archiveReducer from './archiveReducer';
+import stateEnhancer from './stateEnhancer';
 
 const rootReducer = combineReducers({
-  lists: listReducer,
-  archived: archiveReducer
+  // lists: listReducer,
+  board: stateEnhancer(listReducer),
 });
 
 export default rootReducer;

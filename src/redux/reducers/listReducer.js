@@ -64,13 +64,19 @@ const listReducer = (state = initialState, action) => {
 
     case CONSTANTS.ARCHIVE_CARD: {
       const { id, listID } = action.payload;
-      const newState = [...state];
-      const list = newState.find(list => list.id === listID);
-      list.cards = list.cards.filter(card => card.id !== id);
+      const newState = state.map((list) => {
+        if (list.id !== listID) {
+          return list;
+        }
+        return {
+          ...list,
+          cards: list.cards.filter(card => card.id !== id),
+        }
+      })
       return newState;
     }
 
-    case CONSTANTS.DRAGGED: {
+    case CONSTANTS.DRAGGED: {  // 当完成拖放动作时
       const {
         droppableIdStart, //开始时所在的 container id
         droppableIdEnd,   //结束时所在的 container id
@@ -79,25 +85,35 @@ const listReducer = (state = initialState, action) => {
         type
       } = action.payload;
 
-      const newState = [...state];
+      const newState = [...state];                  //深拷贝不改变原列表
       if (type === 'list') {
-        const list = newState.splice(droppableIndexStart, 1);
-        newState.splice(droppableIndexEnd, 0, ...list);
+        const moveList = newState.splice(droppableIndexStart, 1);
+        newState.splice(droppableIndexEnd, 0, ...moveList);
         console.log('Drag list', newState);
         return newState;
       }
-      //same container
-      if (droppableIdStart === droppableIdEnd) {
-        const list = state.find(list => droppableIdStart === list.id);
-        const card = list.cards.splice(droppableIndexStart, 1);
-        list.cards.splice(droppableIndexEnd, 0, ...card);
-      } else {
-        const startList = state.find(list => droppableIdStart === list.id);
-        const endList = state.find(list => droppableIdEnd === list.id);
 
-        const card = startList.cards.splice(droppableIndexStart, 1);
-        endList.cards.splice(droppableIndexEnd, 0, ...card);
+      const sourceListIndex = newState.findIndex(list => droppableIdStart === list.id);
+      const sourceList = newState[sourceListIndex];
+      const sourceCards = [...sourceList.cards];    //深拷贝不改变原数组
+      const moveCard = sourceCards.splice(droppableIndexStart, 1);
+
+      if (droppableIdStart !== droppableIdEnd) {    //不同列之间移动卡片
+        const destinationListIndex = newState.findIndex(list => droppableIdEnd === list.id);
+        const destinationList = newState[destinationListIndex];
+        const destinationCards = [...destinationList.cards];
+        destinationCards.splice(droppableIndexEnd, 0, ...moveCard);
+        newState[destinationListIndex] = {
+          ...newState[destinationListIndex],
+          cards: destinationCards
+        };
+      } else {                                      //同列中改变卡片次序
+        sourceCards.splice(droppableIndexEnd, 0, ...moveCard);
       }
+      newState[sourceListIndex] = {
+        ...newState[sourceListIndex],
+        cards: sourceCards
+      };
       console.log('Drag card', newState);
       return newState;
     }

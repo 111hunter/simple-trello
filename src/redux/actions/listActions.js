@@ -45,6 +45,17 @@ export const archiveCard = (id, text, listID) => {
   };
 };
 
+export const undoAction = () => {
+  return {
+    type: CONSTANTS.UNDO_ACTION,
+  };
+};
+export const redoAction = () => {
+  return {
+    type: CONSTANTS.REDO_ACTION,
+  };
+};
+
 export const sort = (
   droppableIdStart,
   droppableIdEnd,

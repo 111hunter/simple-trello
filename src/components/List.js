@@ -11,7 +11,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import ListForm from './ListForm';
 import { editList, archiveList } from '../redux/actions';
 
-const List = ({ id, title, cards = [], index }) => {
+const List = ({ id, title, cards = [], index, searchText }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [listTitle, setTitle] = useState(title);
   const dispatch = useDispatch();
@@ -43,6 +43,14 @@ const List = ({ id, title, cards = [], index }) => {
   const archive = () => {
     dispatch(archiveList({ id, title }, cards));
     setIsEditing(false);
+  };
+
+  const getFilteredCards = (cards, searchText) => {
+    if (searchText) {
+      console.log(searchText);
+      return cards.filter(card => card.text.toLowerCase().includes(searchText.toLowerCase()));
+    }
+    return cards;
   };
 
   return (
@@ -90,12 +98,12 @@ const List = ({ id, title, cards = [], index }) => {
                 </OverlayTrigger>
               </div>
             )}
-          <Droppable droppableId={String(id)}>
+          <Droppable droppableId={String(id)} type="card">
             {(provided, snapshot) => (
               <CardListContainer ref={provided.innerRef}
                 isDraggingOver={snapshot.isDraggingOver}
                 {...provided.droppableProps}>
-                {cards.map((card, index) => (
+                {getFilteredCards(cards, searchText).map((card, index) => (
                   <Card
                     key={card.id}
                     id={card.id}

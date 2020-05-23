@@ -7,8 +7,8 @@ import { useDispatch } from 'react-redux';
 import { sort } from '../redux/actions';
 import styled from 'styled-components';
 
-const Board = () => {
-  const lists = useSelector(state => state.lists);
+const Board = ({ searchText }) => {
+  const lists = useSelector(state => state.board.currentState);
   const dispatch = useDispatch();
 
   const onDragEnd = ({ destination, source, draggableId, type }) => {
@@ -34,7 +34,7 @@ const Board = () => {
             {...provided.droppableProps}>
             {Object.keys(lists).map((key, index) => {
               const list = lists[key];
-              const listCards = list.cards.length > 0 ? list.cards : [];
+              const listCards = list.cards ? list.cards : [];
               return (
                 <List
                   key={list.id}
@@ -42,6 +42,7 @@ const Board = () => {
                   title={list.title}
                   cards={listCards}
                   index={index}
+                  searchText={searchText}
                 />
               );
             })}
